@@ -222,15 +222,203 @@ df.explain()
 
 ::: {.column width="60%"}
 ::: {.incremental}
-- New data wrangling library
-- Alternative to Pandas for using DataFrames
-- Fast -- in Rust, uses Apache Arrow, built to parallelize and use GPUs, allows for lazy evaluation
-- More consistent syntax than Pandas
-- Anagram of its query engine (OLAP) and Rust (rs)
+- New (under development) seaborn module for visualizing data
+- Like seaborn, it's a higher-level interface for matplotlib
+- Unlike seaborn, it attempts to eliminate the need to fine-tune plots with matplotlib
+- More consistent syntax following the [grammar of graphics](https://link.springer.com/book/10.1007/0-387-28695-0)
+- Each plot is composed of data, a mapping, and the specific graphic
 :::
 :::
 
 ::::
+
+## Column plots
+
+With a focus on human-readability, seaborn.objects relies on method chaining and is consistent and verbose
+
+- Install with `pip install seaborn.objects`
+- We can't method chain between object classes
+- Data and the mapping happen with `so.Plot()`
+- The graphic is specified with `so.Bar()`
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{python}
+#| code-line-numbers: "|1|3-11|13-16"
+import seaborn.objects as so
+
+# Option 1: Plot + Mark
+region_count = (customer_data
+  .group_by(pl.col('region'))
+  .agg(n = pl.len())
+)
+
+(so.Plot(region_count, x = 'region', y = 'n')
+  .add(so.Bar())
+)
+
+# Option 2: Plot + Mark + Stat
+(so.Plot(customer_data, x = 'region')
+  .add(so.Bar(), so.Hist())
+)
+```
+:::
+
+::: {.column width="50%"}
+![](../figures/plot01.png){fig-align="center"}
+:::
+
+::::
+
+## Histograms
+
+seaborn.objects provides flexibility through combining Marks and Stats
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{python}
+(so.Plot(customer_data, x = 'income')
+  .add(so.Bars(), so.Hist())
+)
+```
+:::
+
+::: {.column width="50%"}
+![](../figures/plot02.png){fig-align="center"}
+:::
+
+::::
+
+## Scatterplots
+
+Each Mark and Stat has its own parameters to customize your plots
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{python}
+(so.Plot(customer_data, x = 'star_rating', y = 'income')
+  .add(so.Dot(pointsize = 10, alpha = 0.5), so.Jitter(0.75))
+)
+```
+:::
+
+::: {.column width="50%"}
+![](../figures/plot03.png){fig-align="center"}
+:::
+
+::::
+
+## Line plots
+
+A Stat is not always sufficient -- we often need to iterate between data wrangling and visualization
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{python}
+(so.Plot(customer_data, x = 'review_time', y = 'star_rating')
+  .add(so.Line())
+)
+```
+:::
+
+::: {.column width="50%"}
+![](../figures/plot04.png){fig-align="center"}
+:::
+
+::::
+
+## Line plots
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{python}
+#| code-line-numbers: "|1-12|2|3-6|7-9|10-11|14-16"
+rating_data = (customer_data
+  .drop_nulls(pl.col('star_rating'))
+  .select(pl.col(['review_time', 'star_rating']))
+  .with_columns(
+    pl.col('review_time').str.to_date(format='%m %d, %Y').alias('review_time')
+  )
+  .with_columns(
+    pl.col('review_time').dt.year().alias('review_year')
+  )
+  .group_by('review_year')
+  .agg(pl.mean('star_rating').alias('avg_star_rating'))
+)
+
+(so.Plot(rating_data, x = 'review_year', y = 'avg_star_rating')
+  .add(so.Line())
+)
+```
+:::
+
+::: {.column width="50%"}
+![](../figures/plot05.png){fig-align="center"}
+:::
+
+::::
+
+## Facets
+
+There are lots of things you can do to customize a plot beyond the data, mapping, and graphic type
+
+- The `.facet()` method behaves like a `.group_by()` for the plot
+- You can `.facet()` by mapping different variables to `col` and `row`
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{python}
+#| code-line-numbers: "|2"
+(so.Plot(customer_data, x = 'income')
+  .facet(col = 'gender')
+  .add(so.Bars(), so.Hist())
+)
+```
+:::
+
+::: {.column width="50%"}
+![](../figures/plot06.png){fig-align="center"}
+:::
+
+::::
+
+# Quarto
+
+## 
+
+:::: {.columns .v-center}
+
+::: {.column width="40%"}
+![](../figures/seaborn-objects.png){fig-align="center"}
+:::
+
+::: {.column width="60%"}
+::: {.incremental}
+- New (under development) seaborn module for visualizing data
+- Like seaborn, it's a higher-level interface for matplotlib
+- Unlike seaborn, it attempts to eliminate the need to fine-tune plots with matplotlib
+- More consistent syntax following the [grammar of graphics](https://link.springer.com/book/10.1007/0-387-28695-0)
+- Each plot is composed of data, a mapping, and the specific graphic
+:::
+:::
+
+::::
+
+
+
+
+
+
+
+
+
+
 
 # {background-color="#486790"}
 
