@@ -15,6 +15,7 @@ format:
 execute:
   eval: false
   echo: true
+# output-location: column
 ---
 
 ## 
@@ -81,329 +82,100 @@ execute:
 
 ::::
 
-## Import packages and read data
+## Filter, slice, and sort observations
 
-Install with `pip install polars`, we can import Polars and read in data.
+Polars syntax follows a human-readable, SQL-like grammar
+
+- Install with `pip install polars`
+- Parameters for `.slice()` are the start index and length
+- We use `pl.col()` to reference variables in our data
 
 ```{python}
+#| code-line-numbers: "|1-2|4|5-6|8-9|10|12|14-15"
 import polars as pl
 import os
 
 customer_data = pl.read_csv(os.path.join('data', 'customer_data.csv'))
 customer_data.shape
 customer_data.columns
-```
 
-## Filter and slice observations
-
-Polars **DataFrames** have methods that mirror SQL. DataFrames are still composed of columns called **Series**, however, unlike Pandas DataFrames, Polars DataFrames don't have a **row index** (so no need to `.reset_index()`).
-
-Additionally, instead of relying on Pandas' `.loc[]` **property**, Polars includes function-like **expressions** like `pl.col('column_name')`.
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
 customer_data.filter(pl.col('college_degree') == 'Yes')
 customer_data.filter(pl.col('region') != 'West')
 customer_data.filter(pl.col('gender') != 'Female', pl.col('income') > 70000)
-```
 
-## Pandas
-
-```{python}
-customer_data_pd.loc[customer_data_pd['college_degree'] == 'Yes']
-customer_data_pd.loc[customer_data_pd['region'] != 'West']
-customer_data_pd.loc[(customer_data_pd['gender'] != 'Female') & (customer_data_pd['income'] > 70000)]
-```
-
-## R
-
-```{r}
-filter(customer_data, college_degree == "Yes")
-filter(customer_data, region != "West")
-filter(customer_data, gender == "Female", income > 70000)
-```
-:::
-
-## Slice Observations
-
-The parameters for Polars' `.slice()` method are the start index and the length.
-
-We similarly don't need to rely on Pandas' `.iloc[]` property.
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
 customer_data.slice(0, 5)
-```
 
-## Pandas
-
-```{python}
-customer_data_pd.iloc[0:5]
-```
-
-## R
-
-```{r}
-slice(customer_data, 1:5)
-```
-:::
-
-## Sort Observations
-
-To reiterate, instead of using `[ ]` like in Pandas, in Polars we rely on expressions like `pl.col()`.
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
 customer_data.sort(pl.col('birth_year'))
 customer_data.sort(pl.col('birth_year'), descending = True)
 ```
 
-## Pandas
-
 ```{python}
-customer_data_pd.sort_values('birth_year')
-customer_data_pd.sort_values('birth_year', ascending = False)
+#| echo: false
+import polars as pl
+import os
+
+customer_data = pl.read_csv(os.path.join('..', 'data', 'customer_data.csv'))
 ```
 
-## R
+## Select and recode/create variables, join data frames
 
-```{r}
-arrange(customer_data, birth_year)
-arrange(customer_data, desc(birth_year))
-```
-:::
-
-## Select Variables
-
-Polars separates out `.filter()` and `.select()` that are combined in Pandas' `.loc[]`.
-
-::: {.panel-tabset .scrollable}
-## Polars
+Polars `.filter()` and `.select()` are separate methods
 
 ```{python}
+#| code-line-numbers: "|1-2|4|6|8-9"
 customer_data.select(pl.col('region'), pl.col('review_text'))
 customer_data.select(pl.col(['region', 'review_text']))
-```
 
-## Pandas
-
-```{python}
-customer_data_pd.loc[:, ['region', 'review_text']]
-```
-
-## R
-
-```{r}
-select(customer_data, region, review_text)
-```
-:::
-
-## Add Variables
-
-Polars is actually a query language, like SQL. So it's not surprising to see methods with names that more closely mirror queries, like the `.with_columns()` method.
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
 customer_data.with_columns(income_new = pl.col('income') / 1000)
-```
 
-## Pandas
-
-```{python}
-customer_data_pd.assign(income_new = customer_data_pd['income'] / 1000)
-```
-
-## R
-
-```{r}
-mutate(customer_data, income = income / 1000)
-```
-:::
-
-## Join Data Frames
-
-Joins are straightforward.
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
-store_transactions = pl.read_csv('data/store_transactions.csv')
-store_transactions
+store_transactions = pl.read_csv(os.path.join('data', 'store_transactions.csv'))
 
 customer_data.join(store_transactions, on = 'customer_id', how = 'left')
+customer_data.join(store_transactions, on = 'customer_id', how = 'inner')
 ```
-
-## Pandas
 
 ```{python}
-store_transactions_pd = pd.read_csv('data/store_transactions.csv')
-store_transactions_pd
-
-customer_data_pd.set_index('customer_id').join(store_transactions_pd.set_index('customer_id'))
+#| echo: false
+store_transactions = pl.read_csv(os.path.join('data', 'store_transactions.csv'))
 ```
 
-## R
+## Chain methods to supercharge human-readability
 
-```{r}
-store_transactions <- read_csv("store_transactions.csv")
-store_transactions
-
-left_join(customer_data, store_transactions, join_by(customer_id))
-```
-:::
-
-## Consecutive Lines of Code
-
-While possible with Python code generally, Polars especially embraces writing consecutive lines of code using **method chaining**. Note that:
+Polars embraces method chaining to improve efficiency
 
 - The entire chain needs to be surrounded with `( )`
 - Each line *starts* with `.`
 - You run the whole block of code at once
-
-::: {.panel-tabset .scrollable}
-## Polars
+- The consistent syntax can be read like a sentence
 
 ```{python}
+#| code-line-numbers: "|1|2|3|4|5|6|7"
 (customer_data
-  .join(store_transactions, on='customer_id', how='left')
+  .join(store_transactions, on = 'customer_id', how = 'left')
   .filter(pl.col('region') == 'West', pl.col('feb_2005') == pl.col('feb_2005').max())
-  .with_columns(age = 2024 - pl.col('birth_year'))
+  .with_columns(age = 2025 - pl.col('birth_year'))
   .select(pl.col(['age', 'feb_2005']))
-  .sort(pl.col('age'), descending=True)
+  .sort(pl.col('age'), descending = True)
   .slice(0, 1)
 )
 ```
 
-## Pandas
+## Summarize variables, including grouped summaries
+
+Human-readable code is designed to be consistent at the cost of being verbose
 
 ```{python}
-crm_data_pd = (customer_data_pd
-  .set_index('customer_id')
-  .join(store_transactions_pd.set_index('customer_id'))
-)
-
-(crm_data_pd
-  .loc[(crm_data_pd['region'] == 'West') & (crm_data_pd['feb_2005'] == crm_data_pd['feb_2005'].max())]
-  .assign(age = 2024 - crm_data_pd['birth_year'])
-  .loc[:, ['age', 'feb_2005']]
-  .sort_values('age', ascending = False)
-  .iloc[0:1]
-)
-```
-
-## R
-
-```{r}
-customer_data |> 
-  left_join(store_transactions, join_by(customer_id)) |> 
-  filter(region == "West", feb_2005 == max(feb_2005)) |> 
-  mutate(age = 2024 - birth_year) |> 
-  select(age, feb_2005) |> 
-  arrange(desc(age)) |> 
-  slice(1)
-```
-:::
-
-## Summarize Discrete Data
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
-(customer_data
-  .group_by(pl.col('region'))
-  .agg(n = pl.len())
-)
-
-(customer_data
-  .group_by(pl.col(['region', 'college_degree']))
-  .agg(n = pl.len())
-)
-```
-
-## Pandas
-
-```{python}
-(customer_data_pd
-  .value_counts('region')
-)
-
-(customer_data_pd
-  .value_counts(['region', 'college_degree'])
-)
-```
-
-## R
-
-```{r}
-customer_data |> 
-  count(region)
-
-customer_data |> 
-  count(region, college_degree)
-```
-:::
-
-## Summarize Continuous Data
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
+#| code-line-numbers: "|1-4|6-9|11-18"
 (customer_data
   .select(pl.col('income'))
   .mean()
 )
 
 (customer_data
-  .select(pl.col(['income', 'credit']))
-  .mean()
-)
-```
-
-## Pandas
-
-```{python}
-(customer_data_pd
-  .loc[:, ['income']]
-  .mean()
+  .group_by(pl.col(['region', 'college_degree']))
+  .agg(n = pl.len())
 )
 
-(customer_data_pd
-  .loc[:, ['income', 'credit']]
-  .mean()
-)
-```
-
-## R
-
-```{r}
-customer_data |>
-  summarize(avg_income = mean(income))
-
-customer_data |>
-  summarize(
-    avg_income = mean(income),
-    avg_credit = mean(credit)
-  )
-```
-:::
-
-## Summarize Discrete and Continuous Data
-
-::: {.panel-tabset .scrollable}
-## Polars
-
-```{python}
 (customer_data
   .group_by(pl.col(['gender', 'region']))
   .agg(
@@ -414,45 +186,20 @@ customer_data |>
 )
 ```
 
-## Pandas
+# {background-color="#486790"}
 
-```{python}
-(customer_data_pd
- .groupby(['gender', 'region'])
- .agg(
-   avg_income = ('income', 'mean'), 
-   avg_credit = ('credit', 'mean')
-  )
- .sort_values('avg_income', ascending = False)
-)
-```
+:::: {.columns .v-center}
 
-## R
-
-```{r}
-customer_data |>
-  group_by(gender, region) |>
-  summarize(
-    avg_income = mean(income),
-    avg_credit = mean(credit)
-  ) |> 
-  arrange(desc(avg_income))
-```
+::: {.column width="60%"}
+![](../figures/pydata-northern-utah-qr.png){fig-align="center"}
 :::
 
-# Don't forget lazy evaluation!
-
-## Resources
-
-- [Lazy API](https://docs.pola.rs/user-guide/concepts/lazy-api/)
-- [Modern Polars](https://kevinheavey.github.io/modern-polars/)
-- [Polars for Data Analysis in Python](https://www.youtube.com/watch?v=5V_MvnwTVwc)
-- [Understanding Expressions when you're used to pandas](https://www.youtube.com/watch?v=kPtUPe5Egak)
-- [Polars’ Rgonomic Patterns](https://emilyriederer.netlify.app/post/py-rgo-polars/)
-
-# Thank you! {background-color="#486790"}
-
+::: {.column width="40%"}
 [marc.dotson@usu.edu](mailto:marc.dotson@usu.edu)  
 [github.com/marcdotson](https://github.com/marcdotson)  
 [occasionaldivergences.com](https://occasionaldivergences.com)
+:::
+
+::::
+
 
