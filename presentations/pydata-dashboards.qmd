@@ -2,9 +2,9 @@
 title: An Introduction to Python Dashboards
 subtitle: |
   | PyData Northern Utah
-  | [github.com/marcdotson/pydata-polars](https://github.com/marcdotson/pydata-dashboards)
+  | [github.com/marcdotson/pydata-dashboards](https://github.com/marcdotson/pydata-dashboards)
 author: Marc Dotson
-date: 2024-11-20
+date: 2025-02-28
 title-slide-attributes:
   data-background-color: "#486790"
 format: 
@@ -22,14 +22,58 @@ execute:
 :::: {.columns .v-center}
 
 ::: {.column width="40%"}
+![](../figures/pydata.png){fig-align="center"}
+:::
+
+::: {.column width="60%"}
+::: {.incremental}
+- Professional forum to learn/retool
+- Global network of chapters
+- Workshops vary from beginning to advanced
+- Polyglot (Python, Julia, R, etc.)
+- You agree to the [PyData Code of Conduct](https://pydata.org/code-of-conduct/)
+- Join at [meetup.com/pydata-northern-utah](https://www.meetup.com/pydata-northern-utah/)
+:::
+:::
+
+::::
+
+## 
+
+:::: {.columns .v-center}
+
+::: {.column width="40%"}
+![](../figures/hackusu.png){fig-align="center"}
+:::
+
+::: {.column width="60%"}
+::: {.incremental}
+- Provide some guidance for the datathon
+- Focus on Python beginners
+- Assume you've installed Python (and an IDE)
+- Focus is on three specific data tools
+- Special focus on *human-readable* code
+- Need help? Raise your hand or talk after
+:::
+:::
+
+::::
+
+# Polars
+
+## 
+
+:::: {.columns .v-center}
+
+::: {.column width="40%"}
 ![](../figures/polars.png){fig-align="center"}
 :::
 
 ::: {.column width="60%"}
 ::: {.incremental}
-- Newer open source library for data wrangling
-- Alternative to Pandas for manipulating DataFrames
-- **Fast** -- written in Rust, uses Apache Arrow, built to parallelize and use GPUs, allows for lazy evaluation
+- New data wrangling library
+- Alternative to Pandas for using DataFrames
+- Fast -- in Rust, uses Apache Arrow, built to parallelize and use GPUs, allows for lazy evaluation
 - More consistent syntax than Pandas
 - Anagram of its query engine (OLAP) and Rust (rs)
 :::
@@ -37,40 +81,20 @@ execute:
 
 ::::
 
-## Load Packages and Data
+## Import packages and read data
 
-After installing with `pip install polars`, we can import Polars and read in data.
-
-::: {.panel-tabset .scrollable}
-## Polars
+Install with `pip install polars`, we can import Polars and read in data.
 
 ```{python}
 import polars as pl
+import os
 
-customer_data = pl.read_csv('data/customer_data.csv')
-customer_data
+customer_data = pl.read_csv(os.path.join('data', 'customer_data.csv'))
+customer_data.shape
+customer_data.columns
 ```
 
-## Pandas
-
-```{python}
-import pandas as pd
-
-customer_data_pd = pd.read_csv('data/customer_data.csv')
-customer_data_pd
-```
-
-## R
-
-```{r}
-library(tidyverse)
-
-customer_data <- read_csv("data/customer_data.csv")
-customer_data
-```
-:::
-
-## Filter Observations
+## Filter and slice observations
 
 Polars **DataFrames** have methods that mirror SQL. DataFrames are still composed of columns called **Series**, however, unlike Pandas DataFrames, Polars DataFrames don't have a **row index** (so no need to `.reset_index()`).
 
