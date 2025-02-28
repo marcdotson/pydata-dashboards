@@ -136,7 +136,7 @@ customer_data.join(store_transactions, on = 'customer_id', how = 'inner')
 
 ```{python}
 #| echo: false
-store_transactions = pl.read_csv(os.path.join('data', 'store_transactions.csv'))
+store_transactions = pl.read_csv(os.path.join('..', 'data', 'store_transactions.csv'))
 ```
 
 ## Chain methods to supercharge human-readability
@@ -186,6 +186,52 @@ Human-readable code is designed to be consistent at the cost of being verbose
 )
 ```
 
+## Optimize underlying queries with lazy evaluation
+
+Tagg a data frame with `.lazy()` to have Polars optimize the query
+
+- Code is only run when we use `.collect()`
+- Look at the underlying optimized OLAP query using `.explain()`
+
+```{python}
+#| code-line-numbers: "|1-9|11|13"
+df = (customer_data
+  .group_by(pl.col(['gender', 'region']))
+  .agg(
+    n = pl.len(), 
+    avg_income = pl.col('income').mean(), 
+    avg_credit = pl.col('credit').mean()
+  )
+  .sort(pl.col('avg_income'), descending = True)
+).lazy()
+
+df.collect()
+
+df.explain()
+```
+
+# seaborn.objects
+
+## 
+
+:::: {.columns .v-center}
+
+::: {.column width="40%"}
+![](../figures/seaborn-objects.png){fig-align="center"}
+:::
+
+::: {.column width="60%"}
+::: {.incremental}
+- New data wrangling library
+- Alternative to Pandas for using DataFrames
+- Fast -- in Rust, uses Apache Arrow, built to parallelize and use GPUs, allows for lazy evaluation
+- More consistent syntax than Pandas
+- Anagram of its query engine (OLAP) and Rust (rs)
+:::
+:::
+
+::::
+
 # {background-color="#486790"}
 
 :::: {.columns .v-center}
@@ -201,5 +247,3 @@ Human-readable code is designed to be consistent at the cost of being verbose
 :::
 
 ::::
-
-
