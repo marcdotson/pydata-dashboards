@@ -1,8 +1,8 @@
 ---
-title: Data Wrangling with Polars
+title: An Introduction to Python Dashboards
 subtitle: |
   | PyData Northern Utah
-  | [github.com/marcdotson/pydata-polars](https://github.com/marcdotson/pydata-polars)
+  | [github.com/marcdotson/pydata-polars](https://github.com/marcdotson/pydata-dashboards)
 author: Marc Dotson
 date: 2024-11-20
 title-slide-attributes:
