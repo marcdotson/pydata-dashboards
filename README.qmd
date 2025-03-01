@@ -10,5 +10,6 @@ It's assumed you already have Python installed (I recommend using [pyenv](https:
 ## Project Organization
 
 - `/data` Simulated data.
+- `/example-dashboard` Example dashboard.
 - `/figures` PNG images and plots.
 - `/presentation` Presentation slides.

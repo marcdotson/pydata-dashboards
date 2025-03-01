@@ -12,5 +12,6 @@ getting set up with a recommended data tool stack, see this
 ## Project Organization
 
 - `/data` Simulated data.
+- `/example-dashboard` Example dashboard.
 - `/figures` PNG images and plots.
 - `/presentation` Presentation slides.
