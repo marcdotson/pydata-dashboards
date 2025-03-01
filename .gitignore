@@ -18,3 +18,7 @@ code/src/*
 !code/src/*.py
 !code/src/*.cpp
 !code/src/*.stan
+
+# Dashboard
+example-dashboard/*
+!example-dashboard/example-dashboard.qmd

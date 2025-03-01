@@ -15,7 +15,6 @@ format:
 execute:
   eval: false
   echo: true
-# output-location: column
 ---
 
 ## 
@@ -188,7 +187,7 @@ Human-readable code is designed to be consistent at the cost of being verbose
 
 ## Optimize underlying queries with lazy evaluation
 
-Tagg a data frame with `.lazy()` to have Polars optimize the query
+Tag a data frame with `.lazy()` to have Polars optimize the query
 
 - Code is only run when we use `.collect()`
 - Look at the underlying optimized OLAP query using `.explain()`
@@ -395,30 +394,55 @@ There are lots of things you can do to customize a plot beyond the data, mapping
 :::: {.columns .v-center}
 
 ::: {.column width="40%"}
-![](../figures/seaborn-objects.png){fig-align="center"}
+![](../figures/quarto.png){fig-align="center"}
 :::
 
 ::: {.column width="60%"}
 ::: {.incremental}
-- New (under development) seaborn module for visualizing data
-- Like seaborn, it's a higher-level interface for matplotlib
-- Unlike seaborn, it attempts to eliminate the need to fine-tune plots with matplotlib
-- More consistent syntax following the [grammar of graphics](https://link.springer.com/book/10.1007/0-387-28695-0)
-- Each plot is composed of data, a mapping, and the specific graphic
+- Technical typsetting and publishing system
+- Lightweight alternative/complement to Jupyter notebooks
+- Using Pandoc, renders to HTML, PDF, Word, PowerPoint, .ipynb, dashboards, etc.
+- Reference to a book resulting from folding printed sheets into four leaves
 :::
 :::
 
 ::::
 
+## Quarto basics
 
+Install the Quarto extension in VS Code (it comes pre-installed with Positron) or [download and install](https://quarto.org/docs/get-started/) the CLI
 
+::: {.incremental}
+- At the top of each .qmd file is a header written in YAML
+- Use [markdown](https://quarto.org/docs/authoring/markdown-basics.html) syntax outside of code blocks (i.e., `##` to create section headings and `-` to produce lists)
+- The markdown is interpreted differently depending on the format you want to render to as specified in the header
+- Code cells begin with `‘‘‘{python}` and end with `‘‘‘`
+- If you don't remember markdown syntax, Quarto has a visual editor
+- Pay attention to required white space
+- Render the document to produce the specified output
+:::
 
+## 
 
+:::: {.columns .v-center}
 
+::: {.column width="100%"}
+![](../figures/example-dashboard.png){fig-align="center"}
+:::
 
+::::
 
+## 
 
+:::: {.columns .v-center}
 
+::: {.column width="100%"}
+- [pola.rs](https://pola.rs)
+- [seaborn.pydata.org/tutorial/objects_interface.html](https://seaborn.pydata.org/tutorial/objects_interface.html)
+- [quarto.org/docs/dashboards](https://quarto.org/docs/dashboards/)
+:::
+
+::::
 
 # {background-color="#486790"}
 
